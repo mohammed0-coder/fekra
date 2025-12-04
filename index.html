@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fekra AI – فكرة</title>
+
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/65D5H6H6/fkrh-hwyh.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;800&display=swap');
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            overflow: hidden; /* Prevent body scroll */
+            background-color: #0f172a; /* Darker BG */
+            color: #f3f4f6;
+        }
+
+        .gradient-welcome {
+            background: linear-gradient(135deg, #60a5fa 0%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(96, 165, 250, 0.3));
+        }
+
+        /* Scrollbar Styling for Dark Mode */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 50px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+        
+        /* Loader */
+        .loader-container {
+            display: inline-block;
+            position: relative;
+            width: 24px;
+            height: 24px;
+        }
+        .loader {
+            border: 2px solid #374151;
+            border-top: 2px solid #60a5fa;
+            border-radius: 50%;
+            width: 100%;
+            height: 100%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Glassmorphism Menus (Glowing & Borderless) */
+        .glass-menu {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: none; /* No Border requested */
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.05); /* Soft inner glow instead of border */
+        }
+        
+        .glass-menu-item {
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .glass-menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Active State for Menu Items */
+        .menu-item-active {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.2), transparent);
+            border-right: 3px solid #60a5fa;
+            color: #93c5fd;
+        }
+
+        /* Chat Bubbles & Markdown Dark Mode */
+        .prose { max-width: none; color: #e5e7eb; font-size: 0.95rem; }
+        .prose p { margin-bottom: 0.5em; }
+        .prose h1, .prose h2, .prose h3 { font-weight: 700; margin-top: 1em; margin-bottom: 0.5em; color: #f3f4f6; }
+        .prose ul { list-style-type: disc; margin-right: 1.5em; }
+        .prose ol { list-style-type: decimal; margin-right: 1.5em; }
+        .prose code { background-color: #1e293b; color: #e2e8f0; padding: 2px 6px; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 0.9em; }
+        .prose pre { background-color: #020617; color: #10b981; padding: 1em; border-radius: 12px; overflow-x: auto; direction: ltr; border: 1px solid #1e293b; margin-top: 0.5em; }
+        .prose img { border-radius: 12px; max-width: 100%; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .prose strong { color: #fff; font-weight: 700; }
+        .prose a { color: #60a5fa; text-decoration: none; border-bottom: 1px dashed #60a5fa; }
+        .prose a:hover { color: #93c5fd; border-style: solid; }
+
+        /* Full Screen Overlay Styles */
+        .overlay-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100;
+            background: rgba(15, 23, 42, 0.98);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            overflow-y: auto; padding: 20px 0;
+        }
+        
+        .login-card { margin: auto; max-height: 95vh; }
+        .blocked-screen { background: #000; color: #ef4444; z-index: 200; }
+
+        /* Animation for Menus */
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-pop-in { animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        /* Sidebar Transition */
+        #sidebar { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 60; }
+        @media (max-width: 767px) {
+            #sidebar { position: fixed !important; height: 100%; width: 80%; background-color: #0f172a; }
+            .sidebar-closed { transform: translateX(100%) !important; } 
+            .sidebar-open { transform: translateX(0) !important; }
+        }
+        @media (min-width: 768px) {
+            #sidebar { position: static !important; transform: translateX(0) !important; width: 18rem; }
+        }
+    </style>
+</head>
+
+<body class="bg-slate-950 h-screen flex overflow-hidden text-gray-100 selection:bg-blue-500/30">
+
+    <div id="blocked-screen" class="hidden blocked-screen overlay-screen text-center p-5">
+        <i class="fas fa-ban text-6xl mb-4 text-red-600 animate-pulse"></i>
+        <h1 class="text-4xl font-bold mb-2" data-lang-key="blocked_title">تم حظرك نهائياً</h1>
+        <p class="text-xl text-gray-300" data-lang-key="blocked_text">لقد تجاوزت عدد التحذيرات المسموح بها (5 مرات) بسبب محتوى غير لائق.</p>
+        <p class="text-sm mt-8 font-mono text-gray-600">SYSTEM LOCK: FEKRA_VIOLATION_MAX</p>
+    </div>
+
+    <div id="login-screen" class="hidden overlay-screen">
+        <div class="bg-slate-900/50 p-8 rounded-3xl shadow-2xl w-full max-w-lg text-center mx-4 login-card border border-slate-800 backdrop-blur-xl">
+            <div class="relative w-24 h-24 mx-auto mb-6 group">
+                <div class="absolute inset-0 bg-blue-500 rounded-full blur opacity-25 group-hover:opacity-40 transition duration-500"></div>
+                <img src="https://i.postimg.cc/65D5H6H6/fkrh-hwyh.png" alt="Logo" class="w-full h-full rounded-full relative z-10 border-2 border-slate-700 shadow-xl">
+            </div>
+            
+            <h2 class="text-3xl font-bold mb-8 text-white tracking-tight" data-lang-key="login_welcome">مرحباً بك في Fekra AI</h2>
+            
+            <div class="space-y-5 text-right">
+                
+                <div class="flex flex-col items-center mb-6">
+                    <div id="profile-pic-preview" class="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center text-4xl text-slate-500 cursor-pointer hover:bg-slate-700 transition border border-slate-700 hover:border-blue-500 group relative overflow-hidden">
+                        <i class="fas fa-camera z-10"></i>
+                        <div class="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center text-xs text-white z-20">تغيير</div>
+                    </div>
+                    <input type="file" id="login-profile-pic" class="hidden" accept="image/*">
+                    <p class="text-xs text-slate-400 mt-2 font-medium" data-lang-key="profile_pic_label">صورة الملف الشخصي</p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 mr-1" data-lang-key="fname_label">الاسم الأول</label>
+                        <input type="text" id="login-fname" class="w-full p-3.5 bg-slate-800/50 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none text-white placeholder-slate-600 transition" placeholder="مثال: محمد">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 mr-1" data-lang-key="lname_label">اللقب</label>
+                        <input type="text" id="login-lname" class="w-full p-3.5 bg-slate-800/50 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none text-white placeholder-slate-600 transition" placeholder="مثال: عبد الله">
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 mr-1" data-lang-key="dob_label">تاريخ الميلاد</label>
+                        <input type="date" id="login-dob" class="w-full p-3.5 bg-slate-800/50 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500/50 outline-none text-white scheme-dark">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 mr-1" data-lang-key="lang_label">اللغة</label>
+                        <select id="login-lang" class="w-full p-3.5 bg-slate-800/50 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500/50 outline-none text-white appearance-none cursor-pointer">
+                            <option value="العربية">العربية</option>
+                            <option value="English">English</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1.5 mr-1" data-lang-key="self_desc_label">وصف الذات (اختياري)</label>
+                    <textarea id="login-self-desc" rows="3" class="w-full p-3.5 bg-slate-800/50 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500/50 outline-none resize-none text-white placeholder-slate-600 transition" placeholder="أخبرني قليلاً عن اهتماماتك..."></textarea>
+                </div>
+            </div>
+            
+            <div class="flex items-center mt-8 justify-end bg-slate-800/30 p-3 rounded-xl border border-slate-800">
+                <label class="text-sm text-slate-300 cursor-pointer hover:text-white select-none" for="terms-agree" data-lang-key="terms_agree">أوافق على الشروط والأحكام</label>
+                <input type="checkbox" id="terms-agree" class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-600 rounded mr-3 bg-slate-700 cursor-pointer">
+            </div>
+
+            <button id="login-btn" class="w-full mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 rounded-2xl hover:from-blue-500 hover:to-indigo-500 transition shadow-lg shadow-blue-900/20 active:scale-[0.98]" data-lang-key="start_button">
+                بدء الاستخدام
+            </button>
+        </div>
+    </div>
+
+    <div id="warning-modal" class="hidden fixed inset-0 bg-black/90 z-[70] flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-slate-900 p-8 rounded-3xl max-w-sm w-full text-center border border-red-500/50 shadow-[0_0_50px_rgba(239,68,68,0.2)]">
+            <div class="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-exclamation-triangle text-4xl text-red-500"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-2" data-lang-key="warning_title">تنبيه</h3>
+            <p id="warning-text" class="text-slate-300 mb-6 leading-relaxed" data-lang-key="warning_text">المحتوى المطلوب مخالف لسياساتنا الأخلاقية.</p>
+            <div class="bg-slate-800 rounded-xl p-3 mb-6">
+                <p class="text-xs font-bold text-slate-500 mb-1" data-lang-key="violation_count">عداد المخالفات</p>
+                <div class="flex items-center justify-center gap-1 text-red-400 font-mono text-xl">
+                    <span id="violation-count-display">0</span>
+                    <span class="text-slate-600">/</span>
+                    <span>5</span>
+                </div>
+            </div>
+            <button onclick="closeWarning()" class="w-full bg-slate-800 text-white px-6 py-3 rounded-xl hover:bg-slate-700 font-bold transition border border-slate-700" data-lang-key="ok_button">فهمت، سألتزم</button>
+        </div>
+    </div>
+
+    <header class="md:hidden fixed top-0 right-0 w-full bg-slate-900/80 backdrop-blur-md p-4 shadow-lg flex justify-between items-center z-50 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+            <h1 class="font-black text-xl tracking-tight text-white">Fekra</h1>
+            <div class="relative">
+                <img src="https://i.postimg.cc/65D5H6H6/fkrh-hwyh.png" class="w-8 h-8 rounded-full border border-slate-600">
+                <div class="absolute inset-0 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
+            </div>
+        </div>
+        <button id="menu-btn" class="text-2xl text-slate-300 focus:outline-none p-2 rounded-lg active:bg-slate-800">
+            <i class="fas fa-bars"></i>
+        </button>
+    </header>
+
+    <div class="flex w-full h-full pt-0 md:pt-0">
+
+        <aside id="sidebar" class="w-72 bg-slate-900 border-l border-slate-800 h-full shadow-2xl fixed inset-y-0 right-0 transform sidebar-closed md:static md:translate-x-0 p-5 overflow-y-auto flex flex-col text-gray-200">
+            
+            <div class="text-center border-b border-slate-800 pb-8 mb-6 mt-16 md:mt-0"> 
+                <div class="relative w-24 h-24 mx-auto mb-4 group cursor-pointer">
+                    <div class="absolute inset-0 bg-blue-500 rounded-full blur opacity-20 group-hover:opacity-40 transition"></div>
+                    <img id="user-profile-pic" src="https://placehold.co/100x100/1e293b/white?text=A" class="relative z-10 w-full h-full rounded-full border-4 border-slate-800 shadow-xl object-cover">
+                    <div class="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 border-4 border-slate-900 rounded-full z-20"></div>
+                </div>
+                <h2 class="font-bold text-2xl text-white tracking-tight">Fekra AI</h2>
+                <p id="user-info-display" class="text-xs text-slate-400 mt-2 font-mono">...</p>
+                
+                <button id="new-chat" class="w-full mt-6 bg-slate-800 hover:bg-slate-700 text-blue-400 hover:text-white rounded-2xl py-3.5 transition shadow-lg border border-slate-700/50 flex items-center justify-center gap-3 group" data-lang-key="new_chat_button">
+                    <span class="w-6 h-6 rounded-full bg-blue-500/10 flex items-center justify-center group-hover:bg-white/20 transition"><i class="fas fa-plus text-xs"></i></span>
+                    <span class="font-bold text-sm">محادثة جديدة</span>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto pr-1">
+                <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4 px-2" data-lang-key="history_title">السجل</h3>
+                <div id="chats-list" class="space-y-1.5 pb-4"></div>
+            </div>
+
+            <div class="mt-auto pt-6 border-t border-slate-800">
+                <div class="bg-gradient-to-br from-red-900/20 to-transparent p-4 rounded-2xl border border-red-900/30 mb-3">
+                    <p class="text-[10px] text-red-300 leading-relaxed text-center font-bold">
+                        🇵🇸 <span data-lang-key="dogma_palestine">المبادئ الثابتة: دعم فلسطين، رفض الاعتراف بالكيان الصهيوني.</span>
+                    </p>
+                </div>
+                <button id="logout-btn" class="w-full flex items-center justify-center gap-2 text-xs text-slate-500 hover:text-red-400 transition py-2 rounded-lg hover:bg-slate-800/50" data-lang-key="logout_button">
+                    <i class="fas fa-sign-out-alt"></i> تسجيل خروج
+                </button>
+            </div>
+        </aside>
+
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/80 z-50 hidden md:hidden backdrop-blur-sm"></div>
+
+        <main class="flex-1 flex flex-col relative bg-slate-950 md:m-0 overflow-hidden h-full pt-16 md:pt-0">
+
+            <!-- Background Effect -->
+            <div class="absolute inset-0 pointer-events-none overflow-hidden">
+                <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
+            </div>
+
+            <div id="welcome-box" class="flex flex-col items-center justify-center flex-1 text-center select-none p-4 overflow-y-auto relative z-10">
+                <div class="mb-8 relative group">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-blue-600 to-purple-600 blur-[60px] opacity-20 group-hover:opacity-30 transition duration-1000 rounded-full"></div>
+                    <img src="https://i.postimg.cc/65D5H6H6/fkrh-hwyh.png" class="w-32 h-32 relative rounded-3xl shadow-2xl border border-slate-700/50 transform group-hover:scale-105 transition duration-500">
+                </div>
+                <h1 id="welcome-text" class="text-4xl md:text-6xl font-black gradient-welcome mb-6 leading-tight tracking-tight">
+                    أهلاً بك
+                </h1>
+                <p class="text-slate-400 text-lg md:text-xl max-w-lg leading-relaxed" data-lang-key="welcome_message">أنا "فكرة"، مساعدك الذكي المطور. كيف يمكنني مساعدتك اليوم؟</p>
+                
+                <div class="flex gap-3 mt-10 flex-wrap justify-center">
+                    <div class="px-4 py-2 rounded-full bg-slate-900 border border-slate-800 text-xs text-slate-400 hover:border-blue-500/50 hover:text-blue-400 transition cursor-default shadow-lg">
+                        <i class="fas fa-search mr-1.5"></i> <span data-lang-key="tag_deep_search">بحث عميق</span>
+                    </div>
+                    <div class="px-4 py-2 rounded-full bg-slate-900 border border-slate-800 text-xs text-slate-400 hover:border-green-500/50 hover:text-green-400 transition cursor-default shadow-lg">
+                        <i class="fas fa-code mr-1.5"></i> <span data-lang-key="tag_code_writer">كتابة أكواد</span>
+                    </div>
+                    <div class="px-4 py-2 rounded-full bg-slate-900 border border-slate-800 text-xs text-slate-400 hover:border-purple-500/50 hover:text-purple-400 transition cursor-default shadow-lg">
+                        <i class="fas fa-presentation mr-1.5"></i> <span data-lang-key="tag_presentation">عروض تقديمية</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="chat-window" class="flex-1 overflow-y-auto hidden p-4 scroll-smooth relative z-10 pb-32"></div>
+
+            <!-- New Input Area (Glassmorphism & New Layout) -->
+            <div class="absolute bottom-0 w-full p-4 md:p-6 z-40 bg-gradient-to-t from-slate-950 via-slate-950/90 to-transparent">
+                
+                <!-- Status Bar -->
+                <div class="flex justify-center mb-3">
+                     <span id="tool-status" class="text-[10px] font-bold text-blue-300 bg-blue-900/20 px-3 py-1 rounded-full border border-blue-500/20 backdrop-blur-md shadow-[0_0_10px_rgba(59,130,246,0.1)] transition-all">
+                        <span data-lang-key="mode_chat">وضع المحادثة</span>
+                    </span>
+                </div>
+
+                <div class="max-w-4xl mx-auto relative">
+                    
+                    <!-- Menus (Positioned Absolute relative to the container) -->
+                    
+                    <!-- 1. Persona Menu (Plus Button Menu) -->
+                    <div id="persona-menu" class="glass-menu hidden absolute bottom-20 right-0 w-52 rounded-2xl p-2 z-50 animate-pop-in">
+                        <div class="text-[10px] font-bold text-slate-500 px-3 py-2 uppercase tracking-wider">الشخصيات</div>
+                        <div class="space-y-1">
+                            <button class="w-full text-right p-3 rounded-xl glass-menu-item text-sm text-slate-200 persona-option flex items-center gap-3" data-persona="الصديق">
+                                <span class="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400"><i class="fas fa-user"></i></span>
+                                <span data-lang-key="persona_friend">الصديق</span>
+                            </button>
+                            <button class="w-full text-right p-3 rounded-xl glass-menu-item text-sm text-slate-200 persona-option flex items-center gap-3" data-persona="الصارم">
+                                <span class="w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center text-red-400"><i class="fas fa-gavel"></i></span>
+                                <span data-lang-key="persona_strict">الصارم</span>
+                            </button>
+                            <button class="w-full text-right p-3 rounded-xl glass-menu-item text-sm text-slate-200 persona-option flex items-center gap-3" data-persona="الدكتور">
+                                <span class="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400"><i class="fas fa-stethoscope"></i></span>
+                                <span data-lang-key="persona_doctor">الدكتور</span>
+                            </button>
+                            <button class="w-full text-right p-3 rounded-xl glass-menu-item text-sm text-slate-200 persona-option flex items-center gap-3" data-persona="المعلم">
+                                <span class="w-6 h-6 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-400"><i class="fas fa-chalkboard-teacher"></i></span>
+                                <span data-lang-key="persona_teacher">المعلم</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. Tools Menu (Tools Button Menu) -->
+                    <div id="tools-menu" class="glass-menu hidden absolute bottom-20 right-14 w-52 rounded-2xl p-2 z-50 animate-pop-in">
+                        <div class="text-[10px] font-bold text-slate-500 px-3 py-2 uppercase tracking-wider">الأدوات</div>
+                        <div class="space-y-1">
+                            <button class="w-full text-right p-3 rounded-xl glass-menu-item text-sm text-slate-200 tool-selector flex items-center gap-3" data-tool="CHAT">
+                                <span class="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400"><i class="fas fa-comments"></i></span>
+                                <span>محادثة عادية</span>
+                            </button>
+                            <button class="w-full text-right p-3 rounded-xl glass-menu-item text-sm text-slate-200 tool-selector flex items-center gap-3" data-tool="DEEP_SEARCH">
+                                <span class="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400"><i class="fas fa-globe"></i></span>
+                                <span>بحث عميق</span>
+                            </button>
+                            <button class="w-full text-right p-3 rounded-xl glass-menu-item text-sm text-slate-200 tool-selector flex items-center gap-3" data-tool="CODER">
+                                <span class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400"><i class="fas fa-code"></i></span>
+                                <span>المبرمج</span>
+                            </button>
+                            <button class="w-full text-right p-3 rounded-xl glass-menu-item text-sm text-slate-200 tool-selector flex items-center gap-3" data-tool="PRESENTATION">
+                                <span class="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400"><i class="fas fa-file-powerpoint"></i></span>
+                                <span>العروض التقديمية</span>
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <!-- Input Bar -->
+                    <div class="flex items-end gap-2 bg-slate-900/60 backdrop-blur-xl p-2 rounded-[2rem] border border-slate-700/50 shadow-2xl relative">
+                        
+                        <!-- 1. Plus Button (Persona) -->
+                        <button id="persona-toggle-btn" class="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 bg-slate-800 hover:bg-slate-700 text-white rounded-full flex items-center justify-center transition-all duration-300 shadow-lg border border-slate-600 hover:border-blue-500 group" title="الشخصيات">
+                            <i class="fas fa-plus transition-transform group-hover:rotate-90"></i>
+                        </button>
+
+                        <!-- 2. Tools Button -->
+                        <button id="tools-toggle-btn" class="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 bg-slate-800 hover:bg-slate-700 text-blue-300 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg border border-slate-600 hover:border-blue-500" title="الأدوات">
+                            <i class="fas fa-layer-group"></i>
+                        </button>
+
+                        <!-- Text Area -->
+                        <textarea id="prompt-input" rows="1" placeholder="اكتب رسالتك هنا..." class="flex-1 bg-transparent py-3 px-2 md:py-3.5 md:px-4 max-h-32 focus:outline-none text-white resize-none placeholder-slate-500 text-sm md:text-base leading-relaxed"></textarea>
+
+                        <!-- Send Button -->
+                        <button id="send-btn" class="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-full flex justify-center items-center text-lg hover:scale-105 active:scale-95 transition-all shadow-[0_0_15px_rgba(37,99,235,0.4)] mb-0.5">
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-[9px] text-center text-slate-600 mt-2 opacity-50" data-lang-key="disclaimer">يمكن للذكاء الاصطناعي أن يخطئ. تأكد من المعلومات.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // =================================================================
+        // Localization
+        // =================================================================
+        const translations = {
+            'العربية': {
+                'app_title': 'Fekra AI – فكرة',
+                'login_welcome': 'مرحباً بك في Fekra AI',
+                'fname_label': 'الاسم الأول',
+                'lname_label': 'اللقب',
+                'dob_label': 'تاريخ الميلاد',
+                'lang_label': 'اللغة',
+                'self_desc_label': 'وصف الذات (اختياري)',
+                'profile_pic_label': 'صورة الملف الشخصي',
+                'terms_agree': 'أوافق على الشروط والأحكام',
+                'terms_error': 'يجب الموافقة على الشروط والأحكام للمتابعة.',
+                'start_button': 'بدء الاستخدام',
+                'history_title': 'السجل',
+                'new_chat_button': 'محادثة جديدة',
+                'logout_button': 'تسجيل خروج',
+                'dogma_palestine': 'المبادئ الثابتة: دعم فلسطين، رفض الاعتراف بالكيان الصهيوني.',
+                'welcome_title': 'أهلاً بك', 
+                'years_old': 'سنة', 
+                'welcome_message': 'أنا "فكرة"، مساعدك الذكي المطور. كيف يمكنني مساعدتك اليوم؟',
+                'tag_deep_search': 'بحث عميق',
+                'tag_code_writer': 'كتابة أكواد',
+                'tag_presentation': 'عروض تقديمية',
+                'disclaimer': 'يمكن للذكاء الاصطناعي أن يخطئ. تأكد من المعلومات.',
+                'pending_process': 'جاري المعالجة...',
+                'pending_image': 'جاري الرسم...',
+                'pending_error': 'عذراً، حدث خطأ في التواصل.', 
+                'pending_image_error': 'عذراً، لم أتمكن من إنشاء الصورة.',
+                'chat_delete_confirm': 'حذف هذه المحادثة؟',
+                'chat_default_title': 'محادثة جديدة',
+                'mode_chat': 'وضع المحادثة العادية',
+                'mode_coder': 'وضع المبرمج 👨‍💻',
+                'mode_deep_search': 'وضع البحث العميق 🌎',
+                'mode_presentation': 'وضع العروض التقديمية 📊',
+                'persona_friend': 'الصديق',
+                'persona_strict': 'الصارم',
+                'persona_doctor': 'الدكتور',
+                'persona_teacher': 'المعلم',
+                'edit_button': 'تعديل',
+                'blocked_title': 'تم حظرك نهائياً',
+                'blocked_text': 'لقد تجاوزت عدد التحذيرات المسموح بها.',
+                'warning_title': 'تنبيه!',
+                'warning_text': 'هذا المحتوى غير مقبول. الرجاء الالتزام.',
+                'violation_count': 'عداد المخالفات',
+                'ok_button': 'فهمت',
+                'sources_label': 'المصادر المعتمدة: ',
+                'input_placeholder': 'اكتب رسالتك هنا...'
+            },
+            'English': {
+                'app_title': 'Fekra AI',
+                'login_welcome': 'Welcome to Fekra AI',
+                'fname_label': 'First Name',
+                'lname_label': 'Last Name',
+                'dob_label': 'Date of Birth',
+                'lang_label': 'Language',
+                'self_desc_label': 'Bio (Optional)',
+                'profile_pic_label': 'Profile Picture',
+                'terms_agree': 'I agree to Terms & Conditions',
+                'terms_error': 'You must agree to continue.',
+                'start_button': 'Get Started',
+                'history_title': 'HISTORY',
+                'new_chat_button': 'New Chat',
+                'logout_button': 'Log Out',
+                'dogma_palestine': 'Fixed Principles: Full support for Palestine.',
+                'welcome_title': 'Welcome',
+                'years_old': 'y/o',
+                'welcome_message': 'I am Fekra, your AI assistant. How can I help?',
+                'tag_deep_search': 'Deep Search',
+                'tag_code_writer': 'Code Writer',
+                'tag_presentation': 'Presentations',
+                'disclaimer': 'AI can make mistakes. Verify info.',
+                'pending_process': 'Thinking...',
+                'pending_image': 'Drawing...',
+                'pending_error': 'Connection Error.',
+                'pending_image_error': 'Image Gen Failed.',
+                'chat_delete_confirm': 'Delete Chat?',
+                'chat_default_title': 'New Chat',
+                'mode_chat': 'Chat Mode',
+                'mode_coder': 'Coder Mode 👨‍💻',
+                'mode_deep_search': 'Deep Search 🌎',
+                'mode_presentation': 'Presentation 📊',
+                'persona_friend': 'Friend',
+                'persona_strict': 'Strict',
+                'persona_doctor': 'Doctor',
+                'persona_teacher': 'Teacher',
+                'edit_button': 'Edit',
+                'blocked_title': 'Blocked',
+                'blocked_text': 'Too many violations.',
+                'warning_title': 'Warning!',
+                'warning_text': 'Unacceptable content.',
+                'violation_count': 'Violations',
+                'ok_button': 'OK',
+                'sources_label': 'Sources: ',
+                'input_placeholder': 'Type your message...'
+            }
+        };
+
+        let currentLang = 'العربية';
+
+        function getLocaleText(key) {
+            return translations[currentLang][key] || key;
+        }
+
+        function applyLocalization(lang) {
+            currentLang = lang;
+            document.documentElement.lang = lang === 'العربية' ? 'ar' : 'en';
+            document.documentElement.dir = lang === 'العربية' ? 'rtl' : 'ltr';
+
+            document.querySelectorAll('[data-lang-key]').forEach(el => {
+                const key = el.getAttribute('data-lang-key');
+                el.textContent = getLocaleText(key);
+            });
+            document.getElementById('prompt-input').placeholder = getLocaleText('input_placeholder');
+            document.title = getLocaleText('app_title');
+        }
+
+        // =================================================================
+        // Config & State
+        // =================================================================
+        const API_KEY = "AIzaSyALQ_0hYyXzCM3LCtX7asK7g6-m5nt_McI"; 
+        const TEXT_MODEL = "gemini-2.5-flash-preview-09-2025"; 
+        const IMAGE_MODEL = "imagen-4.0-generate-001"; 
+        
+        const TEXT_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${API_KEY}`;
+        const IMAGE_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${IMAGE_MODEL}:predict?key=${API_KEY}`;
+
+        let user = JSON.parse(localStorage.getItem("aql_user") || "null");
+        let chats = JSON.parse(localStorage.getItem("aql_chats") || "[]");
+        let blocked = localStorage.getItem("aql_blocked") === "true";
+        let violationCount = parseInt(localStorage.getItem("aql_violations") || "0");
+
+        let currentChat = [];
+        let currentChatIndex = -1;
+        let isSending = false;
+        
+        let CurrentTool = {
+            mode: 'CHAT', 
+            persona: 'الصديق' 
+        };
+
+        const BAD_WORDS = ["احا", "خرا", "خول", "عرص", "كس", "طيز", "شرموطة", "قحبة", "منيك", "متناك", "زب", "سكس", "بورن", "xxx", "nude", "fuck", "shit", "bitch", "ass", "dick", "pussy", "نيك", "منيوك", "كسمك", "لبوة"];
+
+        // =================================================================
+        // System Prompt
+        // =================================================================
+        function getFounderInfo() {
+             const personaName = getLocaleText(`persona_${CurrentTool.persona.toLowerCase()}`);
+             return `
+            MANDATORY IDENTITY INSTRUCTIONS:
+            1. Name: Fekra AI (فكرة).
+            2. Creator: Mohamed Abdallah Abou El-Magd (محمد عبدالله أبو المجد).
+               - 14 years old, Programmer & Graphic Designer.
+               - 2nd Year Middle School, Alexandria, Egypt.
+            3. Politics: FULL SUPPORT for Palestine. NO recognition of Zionist entity.
+            4. Knowledge: "THE MULTIVERSE OF HARRY POTTER" (Facebook group by Mohamed Hany).
+            5. Skills: Expert coder (Python, HTML, CSS, C++, Go, JS).
+            6. Language: Reply in ${currentLang}.
+            7. Current Persona: ${personaName}.
+
+            USER PROFILE:
+            - Name: ${user.fname} ${user.lname}
+            - Age: ${user.age}
+            `;
+        }
+
+        // =================================================================
+        // Init
+        // =================================================================
+        window.onload = () => {
+            if (user) {
+                currentLang = user.lang;
+                applyLocalization(currentLang);
+            } else {
+                applyLocalization('العربية'); 
+            }
+            
+            if (blocked) {
+                document.getElementById("blocked-screen").classList.remove("hidden");
+                return;
+            }
+
+            if (!user) {
+                document.getElementById("login-screen").classList.remove("hidden");
+                setupLoginListeners();
+            } else {
+                initApp();
+            }
+        };
+
+        function setupLoginListeners() {
+            document.getElementById('profile-pic-preview').onclick = () => document.getElementById('login-profile-pic').click();
+            document.getElementById('login-profile-pic').onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const previewEl = document.getElementById('profile-pic-preview');
+                        previewEl.innerHTML = `<img src="${event.target.result}" class="w-full h-full rounded-full object-cover">`;
+                        previewEl.dataset.tempUrl = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            document.getElementById('login-lang').onchange = (e) => applyLocalization(e.target.value);
+            document.getElementById("login-btn").onclick = attemptLogin;
+        }
+
+        function attemptLogin() {
+            const fname = document.getElementById("login-fname").value.trim();
+            const lname = document.getElementById("login-lname").value.trim();
+            const dob = document.getElementById("login-dob").value;
+            const lang = document.getElementById("login-lang").value;
+            const selfDescription = document.getElementById("login-self-desc").value.trim();
+            const termsAgreed = document.getElementById("terms-agree").checked;
+
+            if (!fname || !lname || !dob) { alert(getLocaleText('error_required') || 'البيانات ناقصة'); return; }
+            if (!termsAgreed) { alert(getLocaleText('terms_error')); return; }
+
+            const diff = Date.now() - new Date(dob).getTime();
+            const age = Math.abs(new Date(diff).getUTCFullYear() - 1970);
+            
+            const tempPicUrl = document.getElementById('profile-pic-preview').dataset.tempUrl;
+            const initial = fname.charAt(0).toUpperCase();
+            const profilePicUrl = tempPicUrl || `https://placehold.co/100x100/1e293b/white?text=${initial}`;
+
+            user = { fname, lname, dob, age, lang, selfDescription, profilePicUrl };
+            localStorage.setItem("aql_user", JSON.stringify(user));
+            
+            document.getElementById("login-screen").classList.add("hidden");
+            initApp();
+        };
+
+        function initApp() {
+            applyLocalization(user.lang);
+            document.getElementById("welcome-text").textContent = `${getLocaleText('welcome_title')} ${user.fname}`;
+            document.getElementById("user-info-display").textContent = `${user.fname} ${user.lname} | ${user.age} ${getLocaleText('years_old')}`;
+            document.getElementById("user-profile-pic").src = user.profilePicUrl;
+            refreshChatsList();
+            setupToolListeners();
+        }
+
+        document.getElementById("logout-btn").onclick = () => {
+            if(confirm(getLocaleText('logout_confirm'))) { localStorage.clear(); location.reload(); }
+        };
+
+        // =================================================================
+        // UI Interaction (Sidebar, Profanity, Menus)
+        // =================================================================
+        const menuBtn = document.getElementById("menu-btn");
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebar-overlay");
+
+        function toggleSidebar() {
+            const isClosed = sidebar.classList.contains("sidebar-closed");
+            if (isClosed) {
+                sidebar.classList.remove("sidebar-closed"); sidebar.classList.add("sidebar-open"); overlay.classList.remove("hidden");
+            } else {
+                sidebar.classList.add("sidebar-closed"); sidebar.classList.remove("sidebar-open"); overlay.classList.add("hidden");
+            }
+        }
+        if (menuBtn) menuBtn.onclick = toggleSidebar;
+        if (overlay) overlay.onclick = toggleSidebar;
+
+        function checkProfanity(text) {
+            if (BAD_WORDS.some(word => text.toLowerCase().includes(word))) {
+                violationCount++;
+                localStorage.setItem("aql_violations", violationCount);
+                document.getElementById("violation-count-display").innerText = violationCount;
+                document.getElementById("warning-modal").classList.remove("hidden");
+                if (violationCount >= 5) {
+                    blocked = true; localStorage.setItem("aql_blocked", "true");
+                    setTimeout(() => { document.getElementById("blocked-screen").classList.remove("hidden"); }, 2000);
+                }
+                return true;
+            }
+            return false;
+        }
+        window.closeWarning = () => document.getElementById("warning-modal").classList.add("hidden");
+        
+        function setupToolListeners() {
+            // New Tools Logic: Menus
+            const toolsMenu = document.getElementById("tools-menu");
+            const personaMenu = document.getElementById("persona-menu");
+            const toolsBtn = document.getElementById("tools-toggle-btn");
+            const personaBtn = document.getElementById("persona-toggle-btn");
+
+            // Toggle Tools Menu
+            toolsBtn.onclick = (e) => {
+                e.stopPropagation();
+                personaMenu.classList.add("hidden"); // close other
+                toolsMenu.classList.toggle("hidden");
+            };
+
+            // Toggle Persona Menu
+            personaBtn.onclick = (e) => {
+                e.stopPropagation();
+                toolsMenu.classList.add("hidden"); // close other
+                personaMenu.classList.toggle("hidden");
+            };
+
+            // Close menus on click outside
+            document.addEventListener('click', (e) => {
+                if (!toolsMenu.contains(e.target) && e.target !== toolsBtn) toolsMenu.classList.add("hidden");
+                if (!personaMenu.contains(e.target) && e.target !== personaBtn) personaMenu.classList.add("hidden");
+            });
+
+            // Handle Selection - Tools
+            document.querySelectorAll(".tool-selector").forEach(btn => {
+                btn.onclick = () => {
+                    CurrentTool.mode = btn.dataset.tool;
+                    // Visual feedback
+                    document.querySelectorAll(".tool-selector").forEach(b => b.classList.remove('menu-item-active'));
+                    btn.classList.add('menu-item-active');
+                    toolsMenu.classList.add("hidden");
+                    updateToolStatusDisplay();
+                };
+            });
+            
+            // Handle Selection - Personas
+            document.querySelectorAll(".persona-option").forEach(el => {
+                el.onclick = () => {
+                    CurrentTool.persona = el.dataset.persona;
+                    document.querySelectorAll(".persona-option").forEach(p => p.classList.remove('menu-item-active'));
+                    el.classList.add('menu-item-active');
+                    personaMenu.classList.add("hidden");
+                    updateToolStatusDisplay();
+                };
+            });
+            
+            function updateToolStatusDisplay() {
+                 const statusEl = document.getElementById("tool-status");
+                 const personaLocalized = getLocaleText(`persona_${CurrentTool.persona.toLowerCase()}`);
+                 const modeLocalized = getLocaleText(`mode_${CurrentTool.mode.toLowerCase()}`);
+                 statusEl.innerHTML = `${modeLocalized} - ${personaLocalized}`;
+            }
+            
+            // Init Defaults
+            document.querySelector(`.tool-selector[data-tool="CHAT"]`)?.classList.add('menu-item-active');
+            document.querySelector(`.persona-option[data-persona="الصديق"]`)?.classList.add('menu-item-active');
+        }
+
+        // =================================================================
+        // Chat History
+        // =================================================================
+        function refreshChatsList() {
+            const list = document.getElementById("chats-list");
+            list.innerHTML = "";
+            chats.forEach((c, i) => {
+                const firstUserMsg = c.find(m => m.sender === 'user');
+                const title = firstUserMsg ? firstUserMsg.text.substring(0, 25) + "..." : getLocaleText('chat_default_title');
+                
+                const div = document.createElement("div");
+                div.className = `flex items-center justify-between p-2.5 rounded-xl cursor-pointer group transition-all duration-200 ${i === currentChatIndex ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`;
+                
+                div.innerHTML = `
+                    <div class="flex items-center gap-3 overflow-hidden flex-1" onclick="loadChat(${i})">
+                        <i class="far fa-comment-alt text-xs opacity-70"></i>
+                        <span class="text-xs font-medium truncate">${title}</span>
+                    </div>
+                    <button onclick="deleteChat(event, ${i})" class="text-white/50 hover:text-white opacity-0 group-hover:opacity-100 transition p-1">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        window.deleteChat = (e, i) => {
+            e.stopPropagation();
+            if(confirm(getLocaleText('chat_delete_confirm'))) {
+                chats.splice(i, 1); saveChats();
+                if(currentChatIndex === i) document.getElementById("new-chat").click();
+                else refreshChatsList();
+            }
+        };
+
+        window.loadChat = (i) => {
+            currentChatIndex = i;
+            currentChat = chats[i].filter(m => !m.isImage).map(m => ({
+                role: m.sender === 'user' ? 'user' : 'model',
+                parts: [{ text: m.text }]
+            }));
+            
+            document.getElementById("welcome-box").classList.add("hidden");
+            const chatWindow = document.getElementById("chat-window");
+            chatWindow.classList.remove("hidden");
+            chatWindow.innerHTML = "";
+            
+            chats[i].forEach(msg => {
+                if (msg.isImage) addImageBubble(msg.text, msg.sender, false, msg.sources);
+                else addBubble(msg.text, msg.sender, false, msg.sources);
+            });
+            
+            if(window.innerWidth < 768 && !sidebar.classList.contains("sidebar-closed")) toggleSidebar(); 
+            refreshChatsList(); 
+        };
+
+        function saveChats() { localStorage.setItem("aql_chats", JSON.stringify(chats)); refreshChatsList(); }
+        
+        // =================================================================
+        // Bubbles
+        // =================================================================
+        window.editBubble = (index) => {
+            if (currentChatIndex === -1) return;
+            const chatEntry = chats[currentChatIndex][index];
+            if (chatEntry && chatEntry.sender === 'user') {
+                document.getElementById('prompt-input').value = chatEntry.text;
+                chats[currentChatIndex].splice(index, 2); 
+                loadChat(currentChatIndex);
+                document.getElementById('prompt-input').focus();
+            }
+        }
+
+        function addBubble(text, sender, isPending = false, sources = [], messageIndex = -1) {
+            const win = document.getElementById("chat-window");
+            const div = document.createElement("div");
+            div.className = `flex w-full mt-6 ${sender === 'user' ? 'justify-end' : 'justify-start'} animate-pop-in`;
+
+            const bubbleContainer = document.createElement('div');
+            bubbleContainer.className = 'flex items-end max-w-[90%] md:max-w-[80%]';
+            
+            const bubble = document.createElement("div");
+            
+            // DARK MODE BUBBLES
+            bubble.className = `p-4 md:p-5 rounded-2xl shadow-lg ${
+                sender === 'user' 
+                ? 'bg-blue-600 text-white rounded-br-none' 
+                : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-bl-none prose prose-sm prose-invert'
+            }`;
+
+            if (isPending) {
+                div.id = "pending-bubble";
+                bubble.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="loader-container"><div class="loader"></div></div>
+                        <span class="text-xs font-bold text-slate-400 tracking-wider">${getLocaleText('pending_process')}</span>
+                    </div>`;
+            } else {
+                if (sender === 'model') {
+                    const cleanHtml = DOMPurify.sanitize(marked.parse(text));
+                    bubble.innerHTML = cleanHtml;
+                    if (sources && sources.length > 0 && CurrentTool.mode === 'DEEP_SEARCH') {
+                        const sourcesList = sources.map(s => 
+                            `<a href="${s.uri}" target="_blank" class="text-blue-400 hover:text-blue-300 hover:underline text-xs block truncate transition" title="${s.title}"><i class="fas fa-link mr-1 opacity-50"></i>${s.title || s.uri}</a>`
+                        ).join('');
+                        const sourcesDiv = document.createElement('div');
+                        sourcesDiv.className = 'mt-4 pt-3 border-t border-slate-700/50 text-xs text-slate-500';
+                        sourcesDiv.innerHTML = `<p class="font-bold mb-2 flex items-center gap-1"><i class="fas fa-book-open"></i> ${getLocaleText('sources_label')}</p>${sourcesList}`;
+                        bubble.appendChild(sourcesDiv);
+                    }
+                } else {
+                    const textSpan = document.createElement('span');
+                    textSpan.textContent = text;
+                    bubble.innerHTML = ''; bubble.appendChild(textSpan);
+                    if (messageIndex !== -1) {
+                        const editBtn = document.createElement('button');
+                        editBtn.onclick = () => editBubble(messageIndex);
+                        editBtn.className = 'text-[10px] text-blue-300/50 hover:text-white transition mr-2 self-start transform hover:scale-110';
+                        editBtn.innerHTML = `<i class="fas fa-pen"></i>`;
+                        bubble.appendChild(editBtn);
+                    }
+                    bubble.style.display = 'flex'; bubble.style.alignItems = 'center';
+                }
+            }
+            
+            const avatar = document.createElement("img");
+            avatar.className = "w-8 h-8 rounded-full self-end mb-1 shadow-md object-cover border border-slate-700/50";
+            
+            if (sender === 'model') {
+                avatar.src = "https://i.postimg.cc/65D5H6H6/fkrh-hwyh.png"; 
+                div.appendChild(avatar); 
+                bubbleContainer.appendChild(bubble);
+                div.appendChild(bubbleContainer);
+                div.style.flexDirection = 'row'; 
+                bubble.classList.add('ml-2');
+            } else {
+                avatar.src = user.profilePicUrl; 
+                bubbleContainer.appendChild(bubble);
+                div.appendChild(bubbleContainer);
+                div.appendChild(avatar);
+                div.style.flexDirection = 'row'; 
+                bubble.classList.add('mr-2');
+            }
+
+            win.appendChild(div);
+            win.scrollTop = win.scrollHeight;
+            return div;
+        }
+        
+        function addImageBubble(url, sender, isPending = false) {
+            const win = document.getElementById("chat-window");
+            const div = document.createElement("div");
+            div.className = "flex w-full mt-6 justify-start animate-pop-in"; 
+            
+            const bubble = document.createElement("div");
+            bubble.className = "p-2 bg-slate-800 border border-slate-700 rounded-2xl rounded-bl-none shadow-lg max-w-sm";
+
+            if (isPending) {
+                div.id = "pending-image";
+                bubble.innerHTML = `<div class="flex items-center gap-2 text-xs text-slate-400 p-2"><i class="fas fa-palette animate-pulse text-blue-500"></i> ${getLocaleText('pending_image')}</div>`;
+            } else {
+                bubble.innerHTML = `<div class="relative group"><img src="${url}" class="rounded-xl w-full h-auto cursor-pointer transition transform group-hover:scale-[1.02]" onclick="window.open(this.src)"><div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition rounded-xl flex items-center justify-center pointer-events-none"><i class="fas fa-expand text-white/80"></i></div></div>`;
+            }
+            
+            const avatar = document.createElement("img");
+            avatar.src = "https://i.postimg.cc/65D5H6H6/fkrh-hwyh.png";
+            avatar.className = "w-8 h-8 rounded-full ml-2 self-end mb-1 border border-slate-700";
+            div.appendChild(avatar);
+            div.appendChild(bubble);
+
+            win.appendChild(div);
+            win.scrollTop = win.scrollHeight;
+            return div;
+        }
+
+        // =================================================================
+        // Sending
+        // =================================================================
+        async function sendMessage() {
+            if (isSending) return;
+            const input = document.getElementById("prompt-input");
+            const text = input.value.trim();
+            if (!text) return;
+
+            if (checkProfanity(text)) { input.value = ""; return; }
+
+            input.value = ""; input.style.height = 'auto'; 
+            document.getElementById("welcome-box").classList.add("hidden");
+            document.getElementById("chat-window").classList.remove("hidden");
+            
+            const messageIndex = currentChatIndex !== -1 ? chats[currentChatIndex].length : 0;
+            addBubble(text, "user", false, [], messageIndex);
+            
+            isSending = true;
+
+            const isImageReq = /ارسم|صورة|تخيل|create image|draw|generate/i.test(text);
+            if (isImageReq) { await handleImageGeneration(text); isSending = false; return; }
+            
+            await handleTextGeneration(text);
+            isSending = false;
+        }
+        
+        async function handleImageGeneration(prompt) {
+            addImageBubble("", "model", true);
+            let imageSuccess = false;
+            const imagePrompt = `Generate a high-quality image of: ${prompt}. Style is modern and realistic.`;
+
+            for (let i = 0; i < 3; i++) {
+                try {
+                    const response = await fetch(IMAGE_API_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ instances: [{ prompt: imagePrompt }], parameters: { "sampleCount": 1 } })
+                    });
+                    if (!response.ok) throw new Error("API Error");
+                    const data = await response.json();
+                    if (data.predictions && data.predictions[0].bytesBase64Encoded) {
+                        document.getElementById("pending-image")?.remove();
+                        const imgUrl = `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
+                        addImageBubble(imgUrl, "model");
+                        saveToChat(prompt, imgUrl, true);
+                        imageSuccess = true; break; 
+                    }
+                } catch (e) { await new Promise(r => setTimeout(r, 1000 * (i+1))); }
+            }
+            if (!imageSuccess) { document.getElementById("pending-image")?.remove(); addBubble(getLocaleText('pending_image_error'), "model"); }
+        }
+        
+        async function handleTextGeneration(text) {
+            addBubble("", "model", true);
+            
+            let systemInstruction = getFounderInfo();
+            let tools = [];
+            
+            if (/انا مين|من أنا/i.test(text)) systemInstruction += `\nINSTRUCTION: Provide USER PROFILE DATA summary.`;
+            else systemInstruction += `\nMODE: ${CurrentTool.persona}.`;
+
+            if (CurrentTool.mode === 'DEEP_SEARCH') { tools = [{ google_search: {} }]; systemInstruction += `\nMODE: DEEP SEARCH. Cite sources.`; }
+            else if (CurrentTool.mode === 'CODER') systemInstruction += `\nMODE: PRO-CODER. Code only.`;
+            else if (CurrentTool.mode === 'PRESENTATION') systemInstruction += `\nMODE: PRESENTATION. 10 slides markdown.`;
+            
+            if (/(لون|أحمر|أزرق)/i.test(text)) systemInstruction += `\nVISUAL: Use HTML colors.`;
+            if (/(مقالة طويلة)/i.test(text)) systemInstruction += `\nLENGTH: Very long article.`;
+
+            for (let i = 0; i < 3; i++) {
+                try {
+                    const history = currentChat.map(m => ({ role: m.role, parts: m.parts }));
+                    history.push({ role: "user", parts: [{ text: text }] });
+
+                    const response = await fetch(TEXT_API_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ contents: history, tools: tools, systemInstruction: { parts: [{ text: systemInstruction }] } })
+                    });
+                    
+                    if (!response.ok) throw new Error("API Error");
+                    const data = await response.json();
+                    document.getElementById("pending-bubble")?.remove();
+                    
+                    if (data.candidates && data.candidates[0].content) {
+                        const botText = data.candidates[0].content.parts[0].text;
+                        let sources = [];
+                        if (data.candidates[0].groundingMetadata?.groundingAttributions) {
+                            sources = data.candidates[0].groundingMetadata.groundingAttributions.map(a => ({ uri: a.web?.uri, title: a.web?.title })).filter(s => s.uri);
+                        }
+                        addBubble(botText, "model", false, sources);
+                        saveToChat(text, botText, false, sources);
+                        currentChat.push({ role: "user", parts: [{ text: text }] });
+                        currentChat.push({ role: "model", parts: [{ text: botText }] });
+                        break;
+                    }
+                } catch (e) { 
+                    if (i === 2) { document.getElementById("pending-bubble")?.remove(); addBubble(getLocaleText('pending_error'), "model"); }
+                    await new Promise(r => setTimeout(r, 1000 * (i+1))); 
+                }
+            }
+        }
+
+        function saveToChat(userMsg, botMsg, isImage, sources = []) {
+            const entryUser = { text: userMsg, sender: "user", isImage: false, sources: [] };
+            const entryBot = { text: botMsg, sender: "model", isImage: isImage, sources: sources };
+            if (currentChatIndex === -1) { chats.push([entryUser, entryBot]); currentChatIndex = chats.length - 1; refreshChatsList(); } 
+            else { chats[currentChatIndex].push(entryUser, entryBot); }
+            saveChats();
+        }
+
+        // Listeners
+        document.getElementById("send-btn").onclick = sendMessage;
+        document.getElementById("prompt-input").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+        const tx = document.getElementById("prompt-input");
+        tx.setAttribute("style", "height:" + (tx.scrollHeight) + "px;overflow-y:hidden;");
+        tx.addEventListener("input", function() { this.style.height = "auto"; this.style.height = (this.scrollHeight) + "px"; }, false);
+        document.getElementById("new-chat").onclick = () => {
+            currentChat = []; currentChatIndex = -1;
+            document.getElementById("chat-window").innerHTML = ""; document.getElementById("chat-window").classList.add("hidden");
+            document.getElementById("welcome-box").classList.remove("hidden");
+            CurrentTool.mode = 'CHAT'; CurrentTool.persona = 'الصديق'; setupToolListeners(); 
+            if(window.innerWidth < 768) toggleSidebar(); refreshChatsList();
+        }
+
+    </script>
+</body>
+</html>
