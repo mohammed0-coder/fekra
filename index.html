@@ -266,7 +266,6 @@
 
         <main class="flex-1 flex flex-col relative bg-slate-950 md:m-0 overflow-hidden h-full pt-16 md:pt-0">
 
-            <!-- Background Effect -->
             <div class="absolute inset-0 pointer-events-none overflow-hidden">
                 <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
                 <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
@@ -297,10 +296,8 @@
 
             <div id="chat-window" class="flex-1 overflow-y-auto hidden p-4 scroll-smooth relative z-10 pb-32"></div>
 
-            <!-- New Input Area (Glassmorphism & New Layout) -->
             <div class="absolute bottom-0 w-full p-4 md:p-6 z-40 bg-gradient-to-t from-slate-950 via-slate-950/90 to-transparent">
                 
-                <!-- Status Bar -->
                 <div class="flex justify-center mb-3">
                      <span id="tool-status" class="text-[10px] font-bold text-blue-300 bg-blue-900/20 px-3 py-1 rounded-full border border-blue-500/20 backdrop-blur-md shadow-[0_0_10px_rgba(59,130,246,0.1)] transition-all">
                         <span data-lang-key="mode_chat">وضع المحادثة</span>
@@ -309,9 +306,6 @@
 
                 <div class="max-w-4xl mx-auto relative">
                     
-                    <!-- Menus (Positioned Absolute relative to the container) -->
-                    
-                    <!-- 1. Persona Menu (Plus Button Menu) -->
                     <div id="persona-menu" class="glass-menu hidden absolute bottom-20 right-0 w-52 rounded-2xl p-2 z-50 animate-pop-in">
                         <div class="text-[10px] font-bold text-slate-500 px-3 py-2 uppercase tracking-wider">الشخصيات</div>
                         <div class="space-y-1">
@@ -334,7 +328,6 @@
                         </div>
                     </div>
 
-                    <!-- 2. Tools Menu (Tools Button Menu) -->
                     <div id="tools-menu" class="glass-menu hidden absolute bottom-20 right-14 w-52 rounded-2xl p-2 z-50 animate-pop-in">
                         <div class="text-[10px] font-bold text-slate-500 px-3 py-2 uppercase tracking-wider">الأدوات</div>
                         <div class="space-y-1">
@@ -358,23 +351,18 @@
                     </div>
 
 
-                    <!-- Input Bar -->
                     <div class="flex items-end gap-2 bg-slate-900/60 backdrop-blur-xl p-2 rounded-[2rem] border border-slate-700/50 shadow-2xl relative">
                         
-                        <!-- 1. Plus Button (Persona) -->
                         <button id="persona-toggle-btn" class="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 bg-slate-800 hover:bg-slate-700 text-white rounded-full flex items-center justify-center transition-all duration-300 shadow-lg border border-slate-600 hover:border-blue-500 group" title="الشخصيات">
                             <i class="fas fa-plus transition-transform group-hover:rotate-90"></i>
                         </button>
 
-                        <!-- 2. Tools Button -->
                         <button id="tools-toggle-btn" class="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 bg-slate-800 hover:bg-slate-700 text-blue-300 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg border border-slate-600 hover:border-blue-500" title="الأدوات">
                             <i class="fas fa-layer-group"></i>
                         </button>
 
-                        <!-- Text Area -->
                         <textarea id="prompt-input" rows="1" placeholder="اكتب رسالتك هنا..." class="flex-1 bg-transparent py-3 px-2 md:py-3.5 md:px-4 max-h-32 focus:outline-none text-white resize-none placeholder-slate-500 text-sm md:text-base leading-relaxed"></textarea>
 
-                        <!-- Send Button -->
                         <button id="send-btn" class="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-full flex justify-center items-center text-lg hover:scale-105 active:scale-95 transition-all shadow-[0_0_15px_rgba(37,99,235,0.4)] mb-0.5">
                             <i class="fas fa-arrow-up"></i>
                         </button>
@@ -509,12 +497,12 @@
         // =================================================================
         // Config & State
         // =================================================================
-        const API_KEY = "AIzaSyAyM_NXebt3hfSeX-V2mZ6Tp0fQodRMhLM"; 
-        const TEXT_MODEL = "gemini-2.5-flash-preview-09-2025"; 
-        const IMAGE_MODEL = "imagen-4.0-generate-001"; 
+        // *** تم حذف مفتاح الـ API وتوجيه الروابط إلى الخادم الوسيط الآمن على Vercel ***
+        // *** يجب استبدال الرابط أدناه برابط Vercel الفعلي والنهائي لمشروع fekra-proxy ***
+        const PROXY_API_BASE = "https://vercel.com/fekras-projects/fekra-proxy/DBLbiEU2Xco2J1wWwCR67VjozMxz"; 
         
-        const TEXT_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${API_KEY}`;
-        const IMAGE_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${IMAGE_MODEL}:predict?key=${API_KEY}`;
+        const TEXT_API_URL = `${PROXY_API_BASE}/api/gemini-text`;
+        const IMAGE_API_URL = `${PROXY_API_BASE}/api/gemini-image`;
 
         let user = JSON.parse(localStorage.getItem("aql_user") || "null");
         let chats = JSON.parse(localStorage.getItem("aql_chats") || "[]");
@@ -942,7 +930,10 @@
                     const response = await fetch(IMAGE_API_URL, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ instances: [{ prompt: imagePrompt }], parameters: { "sampleCount": 1 } })
+                        // **********************************************************
+                        // *** تم التعديل: إرسال البيانات الأساسية فقط إلى الخادم الوسيط ***
+                        // **********************************************************
+                        body: JSON.stringify({ prompt: imagePrompt, sampleCount: 1 }) 
                     });
                     if (!response.ok) throw new Error("API Error");
                     const data = await response.json();
